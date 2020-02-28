@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>AskEye</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/index.js"></script>
+    <script src="js/qrcode.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  </head>
+
+
+  <style>
+    img {
+      margin-top: 10px;
+      display: inline !important;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background-color:#5bc0de;
+      color: white;
+      text-align: center;
+    }
+
+    .header {
+      background-color:#5bc0de !important;
+      color: white;
+      text-align: center;
+    }
+  </style>
+
+  <!-- MAIN BODY -->
+  <body>
+    <!-- NAV BAR -->
+    <nav class="header navbar navbar-expand-lg navbar-dark bg-primary ">
+                <a class="navbar-brand" href="#">AskEye</a>
+    </nav>
+    <br>
+    <!-- NAV BAR -->
+
+    <!-- FORM -->
+    <form class="container" >
+      <div class="form-group">
+        <div class="col-xs-4">
+          <div class="card text-center">
+            <div class="card-header">
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Enter Username</h5>
+              <input type="text" id="username" name="username" required>
+              <br>
+              <br>
+              <a type="submit" class="btn btn-primary btn-lg" id="usernamebutton">Start Chat</a>
+            </div>
+            <div class="card-footer text-muted">
+              Scan the QR Code
+              <div id="qrcode" class="card-img-top centre" >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- FORM -->
+
+    <!-- FOOTER -->
+    <!-- <div class="footer">
+      <blockquote class="blockquote">
+        <h3>About Us</h3>
+        <p class="mb-0">We are a team of students from Army Institute of Technology and this project is introduced for assissting the differently abled people to converse freely.</p>
+        <footer class="blockquote-footer">CLAW_Senses</footer>
+      </blockquote>
+    </div> -->
+    <!-- FOOTER -->
+
+  </body>
+
+  <script type="text/javascript">
+
+
+  //QR CODE SCRIPT
+    function stringToHash(string)
+    {
+       var hash = 0;
+       if (string.length == 0) return hash;
+       for (i = 0; i < string.length; i++) {
+           char = string.charCodeAt(i);
+           hash = ((hash << 5) - hash) + char;
+           hash = hash & hash;
+           if(hash<0){
+             hash = hash*-1;
+           }
+       }
+       return hash.toString(16);
+    }
+
+    qr = stringToHash(Date.now().toString())
+
+
+    var qrcode = new QRCode("qrcode");
+
+    function makeCode (qr) {
+          var elText = `https://www.clawpro.club/api/connect?user=${qr}`;
+          // console.log(elText);
+          qrcode.makeCode(elText);
+      }
+
+  makeCode(qr);
+
+  $("#text").on("blur", function () {
+          makeCode();
+      });
+      // on("keydown", function (e) {
+      //     if (e.keyCode == 13) {
+      //         makeCode();
+      //     }
+      // });
+//END OF QR CODE SCRIPT
+
+// POST REQUEST TO CLAWPRO
+      var formData = {'hash': qr} ;//Array
+      $.ajax({
+          url : "https://www.clawpro.club/api/start",
+          type: "POST",
+          data : formData,
+          success: function(data1)
+          {
+            console.log("Sent to server");
+            console.log(data1);
+          },
+          error: function (error)
+          {
+            console.log("server down");
+          }
+      });
+
+      $("#usernamebutton").click(function(){
+        if($("#username").val().length>0){
+          console.log("#####");
+          sessionStorage.setItem("usernamePi",$("#username").val());
+          sessionStorage.setItem("userQR",qr);
+
+          console.log(sessionStorage.getItem("usernamePi"));
+          console.log(sessionStorage.getItem("userQR"));
+          window.location.href = "pi_page.html";
+        }
+
+      });
+
+      $("#usernamebutton").keypress(function(e){
+        if(e.which==13){
+          if($("#username").val().length>0){
+            console.log("#####");
+            sessionStorage.setItem("usernamePi",$("#username").val());
+            sessionStorage.setItem("userQR",qr);
+
+            console.log(sessionStorage.getItem("usernamePi"));
+            console.log(sessionStorage.getItem("userQR"));
+            window.location.href = "pi_page.html";
+          }
+        }
+      });
+//END OF POST REQUEST TO https://www.clawpro.club/api/start
+
+  </script>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>AskEye</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/index.js"></script>
+    <script src="js/qrcode.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  </head>
+
+
+  <style>
+    img {
+      margin-top: 10px;
+      display: inline !important;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background-color:#5bc0de;
+      color: white;
+      text-align: center;
+    }
+
+    .header {
+      background-color:#5bc0de !important;
+      color: white;
+      text-align: center;
+    }
+  </style>
+
+  <!-- MAIN BODY -->
+  <body>
+    <!-- NAV BAR -->
+    <nav class="header navbar navbar-expand-lg navbar-dark bg-primary ">
+                <a class="navbar-brand" href="#">AskEye</a>
+    </nav>
+    <br>
+    <!-- NAV BAR -->
+
+    <!-- FORM -->
+    <form class="container" id="send-container">
+      <div class="form-group">
+        <div class="col-xs-4">
+          <div class="card text-center">
+            <div class="card-header">
+              <h4>You have entered the chat</h4>
+            </div>
+            <br>
+            <!-- <div class="frame">
+              <img id="hand_signs" src="" alt="Nature" crossorigin="anonymous">
+            </div> -->
+            <iframe class="frame"  id="hand_signs" src="" width="640" height="480"></iframe>
+            <div   class="card-body" id="label-container">
+              <div id="message-container">
+              </div>
+            </div>
+
+            <div class="card-footer">
+
+              <div class = "row">
+                <div class = "col-md-10 ">
+                  <input type="text" class="form-control" placeholder="Enter message" id="inputDefault">
+                </div>
+                <div classs = "col-md-2">
+                  <button id="send" class="btn btn-primary" type="submit">Send</button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <!-- FORM -->
+
+    <!-- FOOTER -->
+    <!-- <div class="footer">
+      <blockquote class="blockquote">
+        <h3>About Us</h3>
+        <p class="mb-0">We are a team of students from Army Institute of Technology and this project is introduced for assissting the differently abled people to converse freely.</p>
+        <footer class="blockquote-footer">CLAW_Senses</footer>
+      </blockquote>
+    </div> -->
+    <!-- FOOTER -->
+
+  </body>
+
+  <script src="https://www.clawpro.club/socket.io/socket.io.js"></script>
+    <script>
+        var global = {}
+        // CHATTING IOSOCKETS
+        var getting = sessionStorage.getItem("userQR");
+        console.log("username::"+sessionStorage.getItem("usernamePi")+" QR ROOM::"+sessionStorage.getItem("usernamePi"));
+
+        console.log(getting);
+        var person = sessionStorage.getItem("usernamePi");
+        var socket = io.connect('http://www.clawpro.club');
+        socket.emit('join',{username:person,room:getting});
+        const messageContainer = document.getElementById('message-container');
+        const roomContainer = document.getElementById('room-container');
+        const messageForm = document.getElementById('send-container');
+        const messageInput = document.getElementById('inputDefault');
+
+        if (messageForm != null) {
+
+
+        messageForm.addEventListener('submit', e => {
+          e.preventDefault()
+          const message = messageInput.value;
+          socket.emit('new message', message);
+          messageInput.value = '';
+        })
+        }
+
+
+      /*socket.on('room-created', room => {
+        const roomElement = document.createElement('div')
+        roomElement.innerText = room
+        const roomLink = document.createElement('a')
+        roomLink.href = `/${room}`
+        roomLink.innerText = 'join'
+        roomContainer.append(roomElement)
+        roomContainer.append(roomLink)
+      })*/
+
+    socket.on('new message', data => {
+      if(data.username == person){
+          data.username = "Me";
+        }
+        appendMessage(data.username+" : "+data.message)
+      })
+      socket.on('login', data => {
+        console.log(data)
+      })
+      socket.on('disconnect', name => {
+        appendMessage(name+" is disconnected")
+      })
+
+      async function appendMessage(message) {
+         console.log('1'+message);
+        mess = message;
+        $("#hand_signs").attr('src',"");
+        // let messageElement = document.createElement('div')
+        // messageElement.classList.add("text-center")
+        // messageElement.innerText = message
+        // messageContainer.append(messageElement)
+        check_each_word = message.split(" ");
+        words_to_be_appended = [];
+        for(var i =0; i<check_each_word.length; i++){
+          var form = {"check_word":check_each_word[i]};
+          await $.post('https://www.clawpro.club/api/image', form ,function (data){
+              if(data.success){
+                var str = data.url;
+                mess = mess.replace(check_each_word[i], "<strong><span onclick=\"javaScript:change_sign(\'"+str+"\')\">"+check_each_word[i]+"</span></strong>");
+                console.log(mess);
+              }
+            });
+        }
+    
+        console.log(mess);
+        $("#message-container").append(`<div>${mess}</div>`);
+
+      };
+
+      // CHATTING IOSOCKETS
+      //MONGO AND hand_signs
+      change_sign = function(src)
+      {
+        $("#hand_signs").attr("src",src);
+      }
+
+
+
+    </script>
+
+</html>
