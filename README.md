@@ -22,6 +22,8 @@ The Web App for wrist device for AskEye has the following features :
 - Secure Chat feature that involves speech to text  
 
 #### ScreenShots
+![](https://github.com/TheForeverLost/Pi_Web_App_Sign_Language/blob/master/scanQR.PNG)
+![](https://github.com/TheForeverLost/Pi_Web_App_Sign_Language/blob/master/Capture1.PNG)
 
 > The Project can be improved upon and we are always looking for contributors for
 >> Creation of reliable Datasets
